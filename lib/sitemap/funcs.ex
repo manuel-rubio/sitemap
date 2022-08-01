@@ -47,22 +47,18 @@ defmodule Sitemap.Funcs do
   def iso8601(dt), do: dt
 
   def eraser(elements) do
-    Enum.filter(elements, fn elm ->
-      case elm do
-        e when is_list(e) -> eraser(e)
-        nil -> false
-        _ -> !!elem(elm, 2)
-      end
+    Enum.filter(elements, fn
+      el when is_list(el) -> eraser(el)
+      nil -> false
+      el -> !!elem(el, 2)
     end)
   end
 
-  def yes_no(bool) do
-    if bool == false, do: "no", else: "yes"
-  end
+  def yes_no(false), do: "no"
+  def yes_no(_), do: "yes"
 
-  def allow_deny(bool) do
-    if bool == false, do: "deny", else: "allow"
-  end
+  def allow_deny(false), do: "deny"
+  def allow_deny(_), do: "allow"
 
   def autoplay(bool) do
     if bool, do: "ap=1", else: "ap=0"
@@ -82,18 +78,8 @@ defmodule Sitemap.Funcs do
         {num, _} = Integer.parse(x)
         num
 
-      true ->
+      :else ->
         x
-    end
-  end
-
-  def nil_or(opts), do: nil_or(opts, "")
-  def nil_or([], value), do: value
-
-  def nil_or([h | t], _value) do
-    case h do
-      v when is_nil(v) -> nil_or(t, "")
-      v -> nil_or([], v)
     end
   end
 

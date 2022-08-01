@@ -1,21 +1,21 @@
 defmodule Sitemap do
   use Application
 
-  # See http://elixir-lang.org/docs/stable/elixir/Application.html
-  # for more information on OTP Applications
   def start(_type, _args) do
-    import Supervisor.Spec, warn: false
-
     children = [
-      worker(Sitemap.Config, [], restart: :transient),
-      worker(Sitemap.Builders.File, [], restart: :permanent),
-      worker(Sitemap.Builders.Indexfile, [], restart: :permanent),
-      worker(Sitemap.Namer, [:indexfile], id: :namer_indexfile, restart: :permanent),
-      worker(Sitemap.Namer, [:file, [zero: 1, start: 2]], id: :namer_file, restart: :permanent)
+      Sitemap.Config,
+      Sitemap.Builders.File,
+      Sitemap.Builders.Indexfile,
+      %{
+        id: :namer_indexfile,
+        start: {Sitemap.Namer, :start_link, [:indexfile]}
+      },
+      %{
+        id: :namer_file,
+        start: {Sitemap.Namer, :start_link, [:file, [zero: 1, start: 2]]}
+      }
     ]
 
-    # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_all, name: Sitemap.Supervisor]
     Supervisor.start_link(children, opts)
   end

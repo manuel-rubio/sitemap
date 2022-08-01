@@ -1,6 +1,7 @@
 defmodule Sitemap.State do
   defmacro __using__(opts) do
     quote do
+      use Agent
       defstruct unquote(opts)
       @__struct_resource__ unquote(opts)
 
@@ -8,7 +9,7 @@ defmodule Sitemap.State do
         do: String.to_atom(Enum.join([__MODULE__, name]))
 
       def start_link, do: start_link("", [])
-      def start_link(opts) when is_list(opts), do: start_link("", [])
+      def start_link(opts) when is_list(opts), do: start_link("", opts)
       def start_link(name), do: start_link(name, [])
 
       def start_link(name, opts) do
