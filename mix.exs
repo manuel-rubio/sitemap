@@ -33,7 +33,7 @@ defmodule Sitemap.Mixfile do
       {:earmark, ">= 0.0.0", only: :dev},
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:inch_ex, ">= 0.0.0", only: :docs},
-      {:dialyxir, ">= 0.0.0", only: :dev}
+      {:dialyxir, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
 

@@ -94,19 +94,19 @@ defmodule Sitemap.Funcs do
   end
 
   def urljoin(src, dest) do
-    {s, d} = {URI.parse(src), URI.parse(dest)}
+    src = URI.parse(src)
+    dest = URI.parse(dest)
 
-    to_string(
-      struct(s,
-        host: d.host || s.host,
-        path: d.path || s.path,
-        port: d.port || s.port,
-        query: d.query || s.query,
-        scheme: d.scheme || s.scheme,
-        userinfo: d.userinfo || s.userinfo,
-        fragment: d.fragment || s.fragment,
-        authority: d.authority || s.authority
-      )
-    )
+    %URI{
+      host: dest.host || src.host,
+      path: dest.path || src.path,
+      port: dest.port || src.port,
+      query: dest.query || src.query,
+      scheme: dest.scheme || src.scheme,
+      userinfo: dest.userinfo || src.userinfo,
+      fragment: dest.fragment || src.fragment,
+      authority: dest.authority || src.authority
+    }
+    |> to_string()
   end
 end
