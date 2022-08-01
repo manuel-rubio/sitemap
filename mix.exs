@@ -32,7 +32,8 @@ defmodule Sitemap.Mixfile do
       {:credo, ">= 0.0.0", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
       {:ex_doc, ">= 0.0.0", only: :dev},
-      {:inch_ex, ">= 0.0.0", only: :docs}
+      {:inch_ex, ">= 0.0.0", only: :docs},
+      {:dialyxir, ">= 0.0.0", only: :dev}
     ]
   end
 
