@@ -1,20 +1,11 @@
-Code.require_file("../../test_helper.exs", __ENV__.file)
-
 defmodule Sitemap.BuildersFileTest do
   use ExUnit.Case
 
   setup do
-    Sitemap.Builders.File.finalize_state()
-    Sitemap.Builders.Indexfile.finalize_state()
-    Sitemap.Namer.finalize_state(:file)
-    Sitemap.Namer.finalize_state(:indexfile)
-
-    on_exit(fn ->
-      nil
-    end)
-
-    # Returns extra metadata, it must be a dict
-    # {:ok, hello: "world"}
+    Sitemap.Builders.File.stop()
+    Sitemap.Builders.IndexFile.stop()
+    Sitemap.Namer.stop(:file)
+    Sitemap.Namer.stop(:index_file)
   end
 
   test "Add Builders.File" do

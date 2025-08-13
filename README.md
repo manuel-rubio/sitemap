@@ -15,7 +15,7 @@ Generating sitemap.xml
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
 
-  1. Add sitemap to your list of dependencies in `mix.exs`:
+  1. Add the sitemap library to your list of dependencies in `mix.exs`:
 
   ```elixir
   def deps do
@@ -23,7 +23,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
   end
   ```
 
-  2. Ensure sitemap is started before your application:
+  2. Ensure the sitemap application is started before your application:
 
   ```elixir
   def application do
@@ -33,11 +33,9 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
 #### Usage
 
-sitemap helps you define a module with a `generate` function which will build a sitemap for your site. You must decide how to call `generate` - via a manual Mix task, a recurring background job, or whatever you choose.
+sitemap helps you define a module with a `generate` function that will build a sitemap for your site. You must decide how to call `generate` - via a manual Mix task, a recurring background job, or whatever you choose.
 
-The resulting sitemap is currently written to a file. Because some web hosts do not support writing to the filesystem, we plan to support uploading to S3 in the future.
-
-You can always specify your own adapter module with a `write/2` function and persist the sitemaps wherever you like.
+The resulting sitemap is written to a file.
 
 ###### Basic
 
@@ -139,7 +137,7 @@ config :sitemap, [
 SITEMAP_COMPRESS=false SITEMAP_HOST=http://example.com mix run ./sitemap.exs
 ```
 
-And you guys should follow mix task documents, here:
+And you guys should follow the mix task documents, here:
 
 - https://hexdocs.pm/mix/Mix.Tasks.Run.html
 - https://hexdocs.pm/mix/Mix.Task.html
@@ -147,21 +145,20 @@ And you guys should follow mix task documents, here:
 
 ##### Available options
 
-| Name                 | Default Value          | Environment           | -    |
-|:---------------------|:-----------------------|:----------------------|:-----|
-| max_sitemap_files    | 10000                  | SITEMAP_MAXFILES      | Max sitemap links per index file |
-| max_sitemap_links    | 10000                  | SITEMAP_MAXLINKS      | Max links per sitemap  |
-| max_sitemap_news     | 1000                   | SITEMAP_MAXNEWS       | Max news sitemap per index_file  |
-| max_sitemap_images   | 1000                   | SITEMAP_MAXIMAGES     | Max images per url  |
-| max_sitemap_filesize | 5000000                | SITEMAP_MAXFILESIZE   | Bytes |
-| host                 | http://www.example.com | SITEMAP_HOST          | Your domain, also host with http scheme.  |
-| filename             | sitemap                | SITEMAP_FILENAME      | Name of sitemap file.  |
-| files_path           | sitemap                | SITEMAP_SITEMAPS_PATH | After domain path's location on URL.  |
-| public_path          | sitemap                | SITEMAP_PUBLIC_PATH   | Write sitemap files to this local path.  |
-| adapter              | Sitemap.Adapters.File  | SITEMAP_ADAPTER       | You'd change to write each filesystem  |
-| verbose              | true                   | SITEMAP_VERBOSE       | Getting more information in sitemap working.  |
-| compress             | true                   | SITEMAP_COMPRESS      | Gzip compression.  |
-| create_index         | auto                   | SITEMAP_CREATE_INDEX  | Generating sitemps to this directory path.  |
+| Name                  | Default Value          | Environment           | -    |
+|:----------------------|:-----------------------|:----------------------|:-----|
+| max_sitemap_files     | 10000                  | SITEMAP_MAXFILES      | Max sitemap links per index file |
+| max_sitemap_links     | 10000                  | SITEMAP_MAXLINKS      | Max links per sitemap  |
+| max_sitemap_news      | 1000                   | SITEMAP_MAXNEWS       | Max news sitemap per index_file  |
+| max_sitemap_images    | 1000                   | SITEMAP_MAXIMAGES     | Max images per url  |
+| max_sitemap_file_size | 5000000                | SITEMAP_MAXFILESIZE   | Bytes |
+| host                  | http://www.example.com | SITEMAP_HOST          | Your domain, also host with http scheme.  |
+| filename              | sitemap                | SITEMAP_FILENAME      | Name of sitemap file.  |
+| files_path            | sitemap                | SITEMAP_SITEMAPS_PATH | After domain path's location on URL.  |
+| public_path           | sitemap                | SITEMAP_PUBLIC_PATH   | Write sitemap files to this local path.  |
+| verbose               | true                   | SITEMAP_VERBOSE       | Getting more information in sitemap working.  |
+| compress              | true                   | SITEMAP_COMPRESS      | Gzip compression.  |
+| create_index          | auto                   | SITEMAP_CREATE_INDEX  | Generating sitemaps to this directory path.  |
 
 ### Features
 
@@ -175,20 +172,14 @@ Current Features or To-Do
   - [x] [Geo Sitemaps](#geo-sitemaps)
   - [x] [Mobile Sitemaps](#mobile-sitemaps)
   - [x] [PageMap Sitemap](#pagemap-sitemap)
-- [ ] Supports: write some kind of filesystem and object storage.
-  - [x] Filesystem
-  - [ ] S3
 - [x] Customizable sitemap working
 - [x] Notifies search engines (Google, Bing) of new sitemaps
 - [x] Gives you complete control over your sitemap contents and naming scheme
 - [x] Customizable sitemap compression
 - [ ] Intelligent sitemap indexing
-- [ ] All of completing Examples
+- [ ] All of the completed Examples
 
-
-
-## Supports: generate kind of some sitemaps
-
+## Supports: generate kind of sitemaps
 
 ### News Sitemaps
 

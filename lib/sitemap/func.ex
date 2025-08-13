@@ -1,4 +1,4 @@
-defmodule Sitemap.Funcs do
+defmodule Sitemap.Func do
   def iso8601(yy, mm, dd, hh, mi, ss) do
     "~4.10.0B-~2.10.0B-~2.10.0BT~2.10.0B:~2.10.0B:~2.10.0BZ"
     |> :io_lib.format([yy, mm, dd, hh, mi, ss])
@@ -14,16 +14,14 @@ defmodule Sitemap.Funcs do
     iso8601(yy, mm, dd, hh, mi, ss)
   end
 
-  if Code.ensure_loaded?(NaiveDateTime) do
-    def iso8601(%NaiveDateTime{} = dt) do
-      dt
-      |> NaiveDateTime.to_erl()
-      |> iso8601()
-    end
+  def iso8601(%NaiveDateTime{} = dt) do
+    dt
+    |> NaiveDateTime.to_erl()
+    |> iso8601()
+  end
 
-    def iso8601(%DateTime{} = dt) do
-      DateTime.to_iso8601(dt)
-    end
+  def iso8601(%DateTime{} = dt) do
+    DateTime.to_iso8601(dt)
   end
 
   def iso8601(%Date{} = dt) do
@@ -64,28 +62,28 @@ defmodule Sitemap.Funcs do
     if bool, do: "ap=1", else: "ap=0"
   end
 
-  def getenv(key) do
-    x = System.get_env(key)
+  def get_env(key) do
+    value = System.get_env(key)
 
     cond do
-      x == "false" ->
+      value == "false" ->
         false
 
-      x == "true" ->
+      value == "true" ->
         true
 
-      is_numeric(x) ->
-        {num, _} = Integer.parse(x)
+      numeric?(value) ->
+        {num, _} = Integer.parse(value)
         num
 
       :else ->
-        x
+        value
     end
   end
 
-  def is_numeric(str) when is_nil(str), do: false
+  def numeric?(nil), do: false
 
-  def is_numeric(str) do
+  def numeric?(str) do
     case Float.parse(str) do
       {_num, ""} -> true
       {_num, _r} -> false
@@ -93,20 +91,20 @@ defmodule Sitemap.Funcs do
     end
   end
 
-  def urljoin(src, dest) do
+  def url_join(src, dest) do
     src = URI.parse(src)
     dest = URI.parse(dest)
 
-    %URI{
+    %{
       host: dest.host || src.host,
       path: dest.path || src.path,
       port: dest.port || src.port,
       query: dest.query || src.query,
       scheme: dest.scheme || src.scheme,
       userinfo: dest.userinfo || src.userinfo,
-      fragment: dest.fragment || src.fragment,
-      authority: dest.authority || src.authority
+      fragment: dest.fragment || src.fragment
     }
+    |> then(&struct(URI, &1))
     |> to_string()
   end
 end

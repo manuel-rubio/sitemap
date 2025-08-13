@@ -1,30 +1,16 @@
-Code.require_file("../../test_helper.exs", __ENV__.file)
-
 defmodule Sitemap.GeneratorTest do
   use ExUnit.Case
   use Sitemap
 
   setup do
-    Sitemap.Builders.File.finalize_state()
-    Sitemap.Builders.Indexfile.finalize_state()
-    Sitemap.Namer.finalize_state(:file)
-    Sitemap.Namer.finalize_state(:indexfile)
-
-    on_exit(fn ->
-      nil
-    end)
-
-    # Returns extra metadata, it must be a dict
-    # {:ok, hello: "world"}
+    Sitemap.Builders.File.stop()
+    Sitemap.Builders.IndexFile.stop()
+    Sitemap.Namer.stop(:file)
+    Sitemap.Namer.stop(:index_file)
   end
 
   test "create macro" do
-    statement =
-      create do
-        false
-      end
-
-    assert :ok == statement
+    assert :ok = create(do: false)
   end
 
   test "create & add" do
@@ -43,21 +29,21 @@ defmodule Sitemap.GeneratorTest do
       add_to_index("/mysitemap1.xml.gz")
 
       assert String.contains?(
-               Sitemap.Builders.Indexfile.state().content,
+               Sitemap.Builders.IndexFile.state().content,
                "http://www.example.com/mysitemap1.xml.gz"
              )
 
       add_to_index("/alternatemap.xml")
 
       assert String.contains?(
-               Sitemap.Builders.Indexfile.state().content,
+               Sitemap.Builders.IndexFile.state().content,
                "http://www.example.com/alternatemap.xml"
              )
 
       add_to_index("/changehost.xml.gz", host: "http://google.com")
 
       assert String.contains?(
-               Sitemap.Builders.Indexfile.state().content,
+               Sitemap.Builders.IndexFile.state().content,
                "http://google.com/changehost.xml.gz"
              )
     end

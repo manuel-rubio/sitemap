@@ -1,8 +1,9 @@
-defmodule Sitemap.Builders.Indexfile do
-  alias Sitemap.Consts
+defmodule Sitemap.Builders.IndexFile do
   alias Sitemap.Builders.File, as: FileBuilder
-  alias Sitemap.Builders.Indexurl
+  alias Sitemap.Builders.IndexUrl
+  alias Sitemap.Consts
   alias Sitemap.Location
+
   require XmlBuilder
 
   use Sitemap.State,
@@ -14,7 +15,7 @@ defmodule Sitemap.Builders.Indexfile do
     FileBuilder.write()
 
     content =
-      Indexurl.to_xml(Location.url(:file), options)
+      IndexUrl.to_xml(Location.url(:file), options)
       |> XmlBuilder.generate()
 
     add_state(:content, content)
@@ -24,7 +25,7 @@ defmodule Sitemap.Builders.Indexfile do
 
   def add(link, options) do
     content =
-      Indexurl.to_xml(Location.url(link), options)
+      IndexUrl.to_xml(Location.url(link), options)
       |> XmlBuilder.generate()
 
     # TODO: Count-Up sitemap line.
@@ -35,6 +36,6 @@ defmodule Sitemap.Builders.Indexfile do
   def write do
     s = state()
     content = Consts.xml_idxheader() <> s.content <> Consts.xml_idxfooter()
-    Location.write(:indexfile, content, s.link_count)
+    Location.write(:index_file, content, s.link_count)
   end
 end

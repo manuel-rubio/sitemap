@@ -1,5 +1,4 @@
 defmodule Sitemap.Consts do
-
   def schemas do
     %{
       geo: "http://www.google.com/geo/schemas/sitemap/1.0",

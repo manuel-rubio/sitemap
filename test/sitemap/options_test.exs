@@ -1,14 +1,12 @@
-Code.require_file("../../test_helper.exs", __ENV__.file)
-
 defmodule Sitemap.OptionsTest do
   use ExUnit.Case
   use Sitemap, compress: false, create_index: true
 
   setup do
-    Sitemap.Builders.File.finalize_state()
-    Sitemap.Builders.Indexfile.finalize_state()
-    Sitemap.Namer.finalize_state(:file)
-    Sitemap.Namer.finalize_state(:indexfile)
+    Sitemap.Builders.File.stop()
+    Sitemap.Builders.IndexFile.stop()
+    Sitemap.Namer.stop(:file)
+    Sitemap.Namer.stop(:index_file)
 
     on_exit(fn ->
       nil
@@ -52,16 +50,15 @@ defmodule Sitemap.OptionsTest do
     end
   end
 
-  # :max_sitemap_files,     # Max sitemap links per index file
-  # :max_sitemap_links,     # Max links per sitemap
-  # :max_sitemap_news,      # Max news sitemap per index_file
-  # :max_sitemap_images,    # Max images per url
-  # :max_sitemap_filesize,  # Bytes
-  # :host,                  # Your domain, also host with http scheme.
-  # :filename,              # Name of sitemap file.
-  # :public_path,           # After domain path's location on URL.
-  # :files_path,            # Generating sitemps to this directory path.
-  # :adapter,
+  # :max_sitemap_files,      # Max sitemap links per index file
+  # :max_sitemap_links,      # Max links per sitemap
+  # :max_sitemap_news,       # Max news sitemap per index_file
+  # :max_sitemap_images,     # Max images per url
+  # :max_sitemap_file_size,  # Bytes
+  # :host,                   # Your domain, also host with http scheme.
+  # :filename,               # Name of sitemap file.
+  # :public_path,            # After domain path's location on URL.
+  # :files_path,             # Generating sitemaps to this directory path.
   # :verbose,
   # :compress,
   # :create_index,
@@ -78,7 +75,7 @@ defmodule Sitemap.OptionsTest do
   # test "Options: max_sitemap_images" do
   # end
 
-  # test "Options: max_sitemap_filesize" do
+  # test "Options: max_sitemap_file_size" do
   # end
 
   # test "Options: host" do
@@ -91,9 +88,6 @@ defmodule Sitemap.OptionsTest do
   # end
 
   # test "Options: files_path" do
-  # end
-
-  # test "Options: adapter" do
   # end
 
   # test "Options: verbose" do

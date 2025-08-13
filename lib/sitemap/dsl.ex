@@ -3,7 +3,7 @@ defmodule Sitemap.DSL do
     quote do
       @__use_resource__ unquote(opts)
 
-      import unquote(__MODULE__)
+      import Sitemap.DSL
       import Sitemap.Generator
     end
   end

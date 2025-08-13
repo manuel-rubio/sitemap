@@ -16,12 +16,9 @@ defmodule Sitemap.State do
         Agent.start_link(fn -> struct(__MODULE__, opts) end, name: namepid(name))
       end
 
-      def state, do: state("")
-      def state(name), do: Agent.get(namepid(name), & &1)
+      def state(name \\ ""), do: Agent.get(namepid(name), & &1)
 
-      def finalize_state, do: finalize_state("")
-
-      def finalize_state(name) do
+      def stop(name \\ "") do
         Agent.update(namepid(name), fn _ ->
           %__MODULE__{}
         end)

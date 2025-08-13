@@ -1,6 +1,6 @@
 defmodule Sitemap.Location do
-  alias Sitemap.Namer
   alias Sitemap.Config
+  alias Sitemap.Namer
 
   def directory(_name), do: directory()
 
@@ -45,7 +45,6 @@ defmodule Sitemap.Location do
   end
 
   def write(name, data, _count) do
-    s = Config.get()
-    s.adapter.write(name, data)
+    Sitemap.File.write(name, data)
   end
 end

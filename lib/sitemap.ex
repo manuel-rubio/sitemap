@@ -5,10 +5,10 @@ defmodule Sitemap do
     children = [
       Sitemap.Config,
       Sitemap.Builders.File,
-      Sitemap.Builders.Indexfile,
+      Sitemap.Builders.IndexFile,
       %{
-        id: :namer_indexfile,
-        start: {Sitemap.Namer, :start_link, [:indexfile]}
+        id: :namer_index_file,
+        start: {Sitemap.Namer, :start_link, [:index_file]}
       },
       %{
         id: :namer_file,

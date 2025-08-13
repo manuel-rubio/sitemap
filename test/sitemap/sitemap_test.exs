@@ -1,15 +1,13 @@
-Code.require_file("../../test_helper.exs", __ENV__.file)
-
 defmodule Sitemap.SitemapTest do
   use ExUnit.Case
   # , max_sitemap_links: 5
   use Sitemap
 
   setup do
-    Sitemap.Builders.File.finalize_state()
-    Sitemap.Builders.Indexfile.finalize_state()
-    Sitemap.Namer.finalize_state(:file)
-    Sitemap.Namer.finalize_state(:indexfile)
+    Sitemap.Builders.File.stop()
+    Sitemap.Builders.IndexFile.stop()
+    Sitemap.Namer.stop(:file)
+    Sitemap.Namer.stop(:index_file)
 
     on_exit(fn ->
       nil

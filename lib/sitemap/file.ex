@@ -1,16 +1,14 @@
-defmodule Sitemap.Adapters.File do
-  alias Sitemap.Location
+defmodule Sitemap.File do
   alias Sitemap.DirNotExists
-
-  @behaviour Sitemap.Adapters.Behaviour
+  alias Sitemap.Location
 
   def write(name, data) do
     dir = Location.directory(name)
 
     cond do
-      !File.exists?(dir) -> File.mkdir_p(dir)
-      !File.dir?(dir) -> raise DirNotExists
-      true -> nil
+      not File.exists?(dir) -> File.mkdir_p(dir)
+      not File.dir?(dir) -> raise DirNotExists
+      :else -> nil
     end
 
     path = Location.path(name)

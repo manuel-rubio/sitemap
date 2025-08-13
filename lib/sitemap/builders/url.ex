@@ -1,69 +1,70 @@
 defmodule Sitemap.Builders.Url do
-  alias Sitemap.Funcs
-  alias Sitemap.Config
   import XmlBuilder
 
+  alias Sitemap.Config
+  alias Sitemap.Func
+
   def to_xml(link, attrs \\ []) do
-    elms =
-      element(
-        :url,
-        Funcs.eraser([
-          element(:loc, Path.join(Config.get().host, link || "")),
-          element(
-            :lastmod,
-            Funcs.iso8601(Keyword.get_lazy(attrs, :lastmod, fn -> Funcs.iso8601() end))
-          ),
-          element(:expires, attrs[:expires]),
-          element(:changefreq, attrs[:changefreq]),
-          element(:priority, attrs[:priority])
-        ])
+    elements =
+      []
+      |> maybe_add_element(:loc, Path.join(Config.get().host, link || ""))
+      |> maybe_add_element(
+        :lastmod,
+        Func.iso8601(Keyword.get_lazy(attrs, :lastmod, fn -> Func.iso8601() end))
       )
+      |> maybe_add_element(:expires, attrs[:expires])
+      |> maybe_add_element(:changefreq, attrs[:changefreq])
+      |> maybe_add_element(:priority, attrs[:priority])
+      |> maybe_add(attrs[:mobile], &[mobile() | &1])
+      |> maybe_add(attrs[:geo], &[geo(attrs[:geo]) | &1])
+      |> maybe_add(attrs[:news], &[news(attrs[:news]) | &1])
+      |> maybe_add(attrs[:pagemap], &[pagemap(attrs[:pagemap]) | &1])
+      |> maybe_add(attrs[:images], &[images(attrs[:images]) | &1])
+      |> maybe_add(attrs[:videos], &[videos(attrs[:videos]) | &1])
+      |> maybe_add(attrs[:alternates], &[alternates(attrs[:alternates]) | &1])
+      |> pack_elements()
 
-    elms = ifput(attrs[:mobile], elms, &append_last(&1, mobile()))
-    elms = ifput(attrs[:geo], elms, &append_last(&1, geo(attrs[:geo])))
-    elms = ifput(attrs[:news], elms, &append_last(&1, news(attrs[:news])))
-    elms = ifput(attrs[:pagemap], elms, &append_last(&1, pagemap(attrs[:pagemap])))
-    elms = ifput(attrs[:images], elms, &append_last(&1, images(attrs[:images])))
-    elms = ifput(attrs[:videos], elms, &append_last(&1, videos(attrs[:videos])))
-    elms = ifput(attrs[:alternates], elms, &append_last(&1, alternates(attrs[:alternates])))
-    elms
+    element(:url, elements)
   end
 
-  defp ifput(bool, elms, fun) do
-    if bool do
-      fun.(elms)
-    else
-      elms
-    end
+  defp add_element(elements, name, attrs \\ %{}, children) do
+    [element(name, attrs, children) | elements]
   end
 
-  defp append_last(elements, element) do
-    combine = elem(elements, 2) ++ [element]
+  defp maybe_add(elements, nil, _fun), do: elements
+  defp maybe_add(elements, _condition, f), do: f.(elements)
 
-    elements
-    |> Tuple.delete_at(2)
-    |> Tuple.append(combine)
+  defp maybe_add_element(elements, key, value, attrs \\ %{}, children \\ [])
+
+  defp maybe_add_element(elements, _key, nil, _attrs, _children), do: elements
+
+  defp maybe_add_element(elements, key, value, attrs, []) do
+    [element(key, attrs, value) | elements]
+  end
+
+  defp maybe_add_element(elements, key, _value, attrs, children) when is_list(children) do
+    [element(key, attrs, children) | elements]
   end
 
   defp news(data) do
-    element(
-      :"news:news",
-      Funcs.eraser([
-        element(
-          :"news:publication",
-          Funcs.eraser([
-            element(:"news:name", data[:publication_name]),
-            element(:"news:language", data[:publication_language])
-          ])
-        ),
-        element(:"news:title", data[:title]),
-        element(:"news:access", data[:access]),
-        element(:"news:genres", data[:genres]),
-        element(:"news:keywords", data[:keywords]),
-        element(:"news:stock_tickers", data[:stock_tickers]),
-        element(:"news:publication_date", Funcs.iso8601(data[:publication_date]))
-      ])
-    )
+    news_elements =
+      []
+      |> add_element(
+        :"news:publication",
+        []
+        |> add_element(:"news:name", data[:publication_name])
+        |> add_element(:"news:language", data[:publication_language])
+        |> pack_elements()
+      )
+      |> maybe_add_element(:"news:title", data[:title])
+      |> maybe_add_element(:"news:access", data[:access])
+      |> maybe_add_element(:"news:genres", data[:genres])
+      |> maybe_add_element(:"news:keywords", data[:keywords])
+      |> maybe_add_element(:"news:stock_tickers", data[:stock_tickers])
+      |> maybe_add_element(:"news:publication_date", Func.iso8601(data[:publication_date]))
+      |> pack_elements()
+
+    element(:"news:news", news_elements)
   end
 
   defp images(list, elements \\ [])
@@ -75,21 +76,22 @@ defmodule Sitemap.Builders.Url do
   end
 
   defp images([data | tail], elements) do
-    elm =
-      element(
-        :"image:image",
-        Funcs.eraser([
-          element(:"image:loc", data[:loc]),
-          unless(is_nil(data[:title]), do: element(:"image:title", data[:title])),
-          unless(is_nil(data[:license]), do: element(:"image:license", data[:license])),
-          unless(is_nil(data[:caption]), do: element(:"image:caption", data[:caption])),
-          unless(is_nil(data[:geo_location]),
-            do: element(:"image:geo_location", data[:geo_location])
-          )
-        ])
-      )
+    image_elements =
+      []
+      |> maybe_add_element(:"image:loc", data[:loc])
+      |> maybe_add_element(:"image:title", data[:title])
+      |> maybe_add_element(:"image:license", data[:license])
+      |> maybe_add_element(:"image:caption", data[:caption])
+      |> maybe_add_element(:"image:geo_location", data[:geo_location])
+      |> pack_elements()
 
-    images(tail, elements ++ [elm])
+    images(tail, elements ++ [element(:"image:image", image_elements)])
+  end
+
+  defp pack_elements(elements) do
+    elements
+    |> Enum.reverse()
+    |> Func.eraser()
   end
 
   defp videos(list, elements \\ [])
@@ -101,73 +103,53 @@ defmodule Sitemap.Builders.Url do
   end
 
   defp videos([data | tail], elements) do
-    elm =
-      element(
-        :"video:video",
-        Funcs.eraser([
-          element(:"video:title", data[:title]),
-          element(:"video:description", data[:description]),
-          if data[:player_loc] do
-            attrs = %{allow_embed: Funcs.yes_no(data[:allow_embed])}
-
-            attrs =
-              ifput(
-                data[:autoplay],
-                attrs,
-                &Map.put(&1, :autoplay, Funcs.autoplay(data[:autoplay]))
-              )
-
-            element(:"video:player_loc", attrs, data[:player_loc])
-          end,
-          element(:"video:content_loc", data[:content_loc]),
-          element(:"video:thumbnail_loc", data[:thumbnail_loc]),
-          element(:"video:duration", data[:duration]),
-          unless(is_nil(data[:gallery_loc]),
-            do: element(:"video:gallery_loc", %{title: data[:gallery_title]}, data[:gallery_loc])
-          ),
-          unless(is_nil(data[:rating]), do: element(:"video:rating", data[:rating])),
-          unless(is_nil(data[:view_count]), do: element(:"video:view_count", data[:view_count])),
-          unless(is_nil(data[:expiration_date]),
-            do: element(:"video:expiration_date", Funcs.iso8601(data[:expiration_date]))
-          ),
-          unless(is_nil(data[:publication_date]),
-            do: element(:"video:publication_date", Funcs.iso8601(data[:publication_date]))
-          ),
-          unless(is_nil(data[:tags]), do: Enum.map(data[:tags] || [], &element(:"video:tag", &1))),
-          unless(is_nil(data[:tag]), do: element(:"video:tag", data[:tag])),
-          unless(is_nil(data[:category]), do: element(:"video:category", data[:category])),
-          unless(is_nil(data[:family_friendly]),
-            do: element(:"video:family_friendly", Funcs.yes_no(data[:family_friendly]))
-          ),
-          unless is_nil(data[:restriction]) do
-            attrs = %{relationship: Funcs.allow_deny(data[:relationship])}
-            element(:"video:restriction", attrs, data[:restriction])
-          end,
-          unless is_nil(data[:uploader]) do
-            attrs = %{}
-            attrs = ifput(data[:uploader_info], attrs, &Map.put(&1, :info, data[:uploader_info]))
-            element(:"video:uploader", attrs, data[:uploader])
-          end,
-          unless(is_nil(data[:price]),
-            do: element(:"video:price", video_price_attrs(data), data[:price])
-          ),
-          unless(is_nil(data[:live]), do: element(:"video:live", Funcs.yes_no(data[:live]))),
-          unless(is_nil(data[:requires_subscription]),
-            do:
-              element(:"video:requires_subscription", Funcs.yes_no(data[:requires_subscription]))
-          )
-        ])
+    video_elements =
+      []
+      |> maybe_add_element(:"video:title", data[:title])
+      |> maybe_add_element(:"video:description", data[:description])
+      |> maybe_add_element(:"video:player_loc", data[:player_loc], %{
+        allow_embed: Func.yes_no(data[:allow_embed]),
+        autoplay: Func.autoplay(data[:autoplay])
+      })
+      |> maybe_add_element(:"video:content_loc", data[:content_loc])
+      |> maybe_add_element(:"video:thumbnail_loc", data[:thumbnail_loc])
+      |> maybe_add_element(:"video:duration", data[:duration])
+      |> maybe_add_element(:"video:gallery_loc", data[:gallery_loc], %{
+        title: data[:gallery_title]
+      })
+      |> maybe_add_element(:"video:rating", data[:rating])
+      |> maybe_add_element(:"video:view_count", data[:view_count])
+      |> maybe_add_element(:"video:expiration_date", Func.iso8601(data[:expiration_date]))
+      |> maybe_add_element(:"video:publication_date", Func.iso8601(data[:publication_date]))
+      |> then(fn attrs ->
+        Enum.reduce(data[:tags] || [], attrs, fn tag, acc ->
+          maybe_add_element(acc, :"video:tag", tag)
+        end)
+      end)
+      |> maybe_add_element(:"video:tag", data[:tag])
+      |> maybe_add_element(:"video:category", data[:category])
+      |> maybe_add_element(:"video:family_friendly", Func.yes_no(data[:family_friendly]))
+      |> maybe_add_element(:"video:restriction", data[:restriction], %{
+        relationship: Func.allow_deny(data[:relationship])
+      })
+      |> maybe_add_element(:"video:uploader", data[:uploader], %{
+        info: data[:uploader_info]
+      })
+      |> maybe_add_element(:"video:price", data[:price], video_price_attrs(data))
+      |> maybe_add_element(:"video:live", Func.yes_no(data[:live]))
+      |> maybe_add_element(
+        :"video:requires_subscription",
+        Func.yes_no(data[:requires_subscription])
       )
+      |> pack_elements()
 
-    videos(tail, elements ++ [elm])
+    videos(tail, elements ++ [element(:"video:video", video_elements)])
   end
 
   defp video_price_attrs(data) do
-    attrs = %{}
-    attrs = Map.put(attrs, :currency, data[:price_currency])
-    attrs = ifput(data[:price_type], attrs, &Map.put(&1, :type, data[:price_type]))
-    attrs = ifput(data[:price_type], attrs, &Map.put(&1, :resolution, data[:price_resolution]))
-    attrs
+    %{currency: data[:price_currency]}
+    |> maybe_add(data[:price_type], &Map.put(&1, :type, data[:price_type]))
+    |> maybe_add(data[:price_resolution], &Map.put(&1, :resolution, data[:price_resolution]))
   end
 
   defp alternates(list, elements \\ [])
@@ -194,9 +176,7 @@ defmodule Sitemap.Builders.Url do
     ])
   end
 
-  defp mobile do
-    element(:"mobile:mobile")
-  end
+  defp mobile, do: element(:"mobile:mobile", [])
 
   defp pagemap(data) do
     element(

@@ -1,25 +1,25 @@
 defmodule Sitemap.Generator do
-  alias Sitemap.{Namer, Location, Builders.Indexfile}
   alias Sitemap.Builders.File, as: FileBuilder
+  alias Sitemap.Builders.IndexFile
+  alias Sitemap.Location
+  alias Sitemap.Namer
 
   def add(link, attrs \\ []) do
-    case FileBuilder.add(link, attrs) do
-      :ok ->
-        :ok
-
-      :full ->
-        full()
-        add(link, attrs)
+    if FileBuilder.add(link, attrs) == :full do
+      full()
+      add(link, attrs)
+    else
+      :ok
     end
   end
 
   def add_to_index(link, options \\ []) do
-    Indexfile.add(link, options)
+    IndexFile.add(link, options)
   end
 
   def full do
-    Indexfile.add()
-    FileBuilder.finalize_state()
+    IndexFile.add()
+    FileBuilder.stop()
   end
 
   def fin do
@@ -28,8 +28,8 @@ defmodule Sitemap.Generator do
   end
 
   def reset do
-    Indexfile.write()
-    Indexfile.finalize_state()
+    IndexFile.write()
+    IndexFile.stop()
     Namer.update_state(:file, :count, nil)
   end
 
@@ -39,13 +39,13 @@ defmodule Sitemap.Generator do
     urls = ~w(http://google.com/ping?sitemap=%s
               http://www.bing.com/webmaster/ping.aspx?sitemap=%s) ++ urls
 
-    indexurl = Location.url(:indexfile)
+    index_url = Location.url(:index_file)
 
     spawn(fn ->
       Enum.each(urls, fn url ->
-        ping_url = String.replace(url, "%s", indexurl)
+        ping_url = String.replace(url, "%s", index_url)
 
-        :httpc.request('#{ping_url}')
+        :httpc.request(to_charlist(ping_url))
         IO.puts("Successful ping of #{ping_url}")
       end)
     end)
