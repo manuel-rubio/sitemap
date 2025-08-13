@@ -1,27 +1,26 @@
 defmodule Sitemap.Mixfile do
   use Mix.Project
 
-  @description """
-  Generating sitemap.xml
-  """
-
   def project do
     [
       app: :sitemap,
       name: "Sitemap",
       version: "1.1.0",
       elixir: ">= 1.3.0",
-      description: @description,
+      description: "Generating sitemap.xml",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       package: package(),
       deps: deps(),
-      source_url: "https://github.com/ikeikeikeike/sitemap"
+      source_url: "https://github.com/manuel-rubio/sitemap"
     ]
   end
 
   def application do
-    [extra_applications: [:inets], mod: {Sitemap, []}]
+    [
+      extra_applications: [:inets],
+      mod: {Sitemap, []}
+    ]
   end
 
   defp deps do
@@ -39,9 +38,9 @@ defmodule Sitemap.Mixfile do
 
   defp package do
     [
-      maintainers: ["Tatsuo Ikeda / ikeikeikeike"],
+      maintainers: ["Tatsuo Ikeda / ikeikeikeike", "Manuel Rubio / manuel-rubio"],
       licenses: ["MIT"],
-      links: %{"github" => "https://github.com/ikeikeikeike/sitemap"}
+      links: %{"github" => "https://github.com/manuel-rubio/sitemap"}
     ]
   end
 end
